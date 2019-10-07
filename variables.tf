@@ -3,15 +3,15 @@ variable "name" {
 }
 
 variable "identifier_uris" {
-    description = "Identifies uris for application."
-    type = list(string)
-    default = []
+  description = "Identifies uris for application."
+  type        = list(string)
+  default     = []
 }
 
 variable "reply_urls" {
-    description = "Reply urls for application."
-    type = list(string)
-    default = []
+  description = "Reply urls for application."
+  type        = list(string)
+  default     = []
 }
 
 variable "end_date" {
@@ -21,6 +21,6 @@ variable "end_date" {
 
 variable "assignments" {
   description = "List of role assignments this application should have access to."
-  type = list(object({ scope = string, role_definition_name = string }))
-  default = []
+  type        = list(object({ scope = string, role_definition_name = string }))
+  default     = []
 }
