@@ -24,7 +24,7 @@ resource "random_string" "unique" {
 }
 
 resource "azuread_application_password" "main" {
-  application_id = azuread_application.main.id
+  application_object_id = azuread_application.main.id
   value          = random_string.unique.result
   end_date       = var.end_date
 }
