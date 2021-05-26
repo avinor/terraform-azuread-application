@@ -1,19 +1,32 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 0.13"
   required_providers {
-    azuread = "~> 0.6.0"
-    azurerm = "~> 1.44.0"
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 1.4.0"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 2.55.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1.0"
+    }
   }
 }
 
+provider "azurerm" {
+  features {}
+}
+
 resource "azuread_application" "main" {
-  name                       = var.name
+  display_name               = var.name
   homepage                   = var.homepage
   identifier_uris            = var.identifier_uris
   reply_urls                 = var.reply_urls
   available_to_other_tenants = false
   oauth2_allow_implicit_flow = var.oauth2_allow_implicit_flow
-  type                       = var.type
   group_membership_claims    = var.group_membership_claims
 
   dynamic "required_resource_access" {
