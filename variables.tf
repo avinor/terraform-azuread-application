@@ -34,10 +34,10 @@ variable "required_resource_access" {
   description = "Required resource access for this application."
   type = list(
     object({
-      resource_app_id = string,
+      resource_app_id = string
       resource_access = list(
         object({
-          id   = string,
+          id   = string
           type = string
       }))
   }))
@@ -55,6 +55,20 @@ variable "end_date" {
 
 variable "assignments" {
   description = "List of role assignments this application should have access to."
-  type        = list(object({ scope = string, role_definition_name = string }))
-  default     = []
+  type = list(object({
+    scope                = string
+    role_definition_name = string
+  }))
+  default = []
+}
+
+variable "app_roles" {
+  description = "List of app roles to associate to the application"
+  type = list(object({
+    allowed_member_types = list(string)
+    description          = string
+    display_name         = string
+    value                = string
+  }))
+  default = []
 }

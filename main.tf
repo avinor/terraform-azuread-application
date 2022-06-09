@@ -3,15 +3,15 @@ terraform {
   required_providers {
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 1.4.0"
+      version = "~> 1.6.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.55.0"
+      version = "~> 2.99.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.1.0"
+      version = "~> 3.3.0"
     }
   }
 }
@@ -22,12 +22,18 @@ provider "azurerm" {
 
 resource "azuread_application" "main" {
   display_name               = var.name
-  homepage                   = var.homepage
   identifier_uris            = var.identifier_uris
-  reply_urls                 = var.reply_urls
   available_to_other_tenants = false
-  oauth2_allow_implicit_flow = var.oauth2_allow_implicit_flow
   group_membership_claims    = var.group_membership_claims
+
+  web {
+    homepage_url  = var.homepage
+    redirect_uris = var.reply_urls
+    implicit_grant {
+      access_token_issuance_enabled = var.oauth2_allow_implicit_flow
+    }
+  }
+
 
   dynamic "required_resource_access" {
     for_each = var.required_resource_access
@@ -47,12 +53,24 @@ resource "azuread_application" "main" {
   }
 }
 
+resource "azuread_application_app_role" "roles" {
+
+  for_each = { for ar in var.app_roles : ar.value => ar }
+
+  application_object_id = azuread_application.main.id
+  enabled               = true
+  allowed_member_types  = each.value.allowed_member_types
+  description           = each.value.description
+  display_name          = each.value.display_name
+  value                 = each.key
+}
+
 resource "azuread_service_principal" "main" {
   application_id               = azuread_application.main.application_id
   app_role_assignment_required = false
 }
 
-resource "random_string" "unique" {
+resource "random_password" "unique" {
   length  = 32
   special = false
   upper   = true
@@ -64,7 +82,7 @@ resource "random_string" "unique" {
 
 resource "azuread_application_password" "main" {
   application_object_id = azuread_application.main.id
-  value                 = random_string.unique.result
+  value                 = random_password.unique.result
   end_date              = var.end_date
 }
 
