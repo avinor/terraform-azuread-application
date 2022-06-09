@@ -10,6 +10,6 @@ output "client_id" {
 
 output "client_secret" {
   description = "Password for service principal."
-  value       = random_string.unique.result
+  value       = random_password.unique.result
   sensitive   = true
 }
