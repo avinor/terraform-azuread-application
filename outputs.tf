@@ -10,6 +10,6 @@ output "client_id" {
 
 output "client_secret" {
   description = "Password for service principal."
-  value       = random_password.unique.result
+  value       = azuread_application_password.main.value
   sensitive   = true
 }

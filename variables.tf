@@ -13,14 +13,20 @@ variable "identifier_uris" {
   default     = []
 }
 
-variable "reply_urls" {
+variable "redirect_uris" {
   description = "A list of URLs that user tokens are sent to for sign in, or the redirect URIs that OAuth 2.0 authorization codes and access tokens are sent to."
   type        = list(string)
   default     = []
 }
 
-variable "oauth2_allow_implicit_flow" {
+variable "access_token_issuance_enabled" {
   description = "Does this Azure AD Application allow OAuth2.0 implicit flow tokens?"
+  type        = bool
+  default     = false
+}
+
+variable "id_token_issuance_enabled" {
+  description = "Whether this web application can request an ID token using OAuth 2.0 implicit flow."
   type        = bool
   default     = false
 }
@@ -45,7 +51,8 @@ variable "required_resource_access" {
 
 variable "group_membership_claims" {
   description = "Configures the groups claim issued in a user or OAuth 2.0 access token that the app expects. Possible values are `None`, `SecurityGroup` or `All`."
-  default     = "SecurityGroup"
+  type        = list(string)
+  default     = ["SecurityGroup"]
 }
 
 variable "end_date" {

@@ -3,11 +3,11 @@ terraform {
   required_providers {
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 1.6.0"
+      version = "~> 2.22.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.99.0"
+      version = "~> 3.9.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -20,20 +20,25 @@ provider "azurerm" {
   features {}
 }
 
+resource "random_uuid" "app_roles_id" {
+  for_each = { for r in var.app_roles : r.value => r }
+}
+
 resource "azuread_application" "main" {
-  display_name               = var.name
-  identifier_uris            = var.identifier_uris
-  available_to_other_tenants = false
-  group_membership_claims    = var.group_membership_claims
+  display_name            = var.name
+  identifier_uris         = var.identifier_uris
+  sign_in_audience        = "AzureADMyOrg"
+  group_membership_claims = var.group_membership_claims
 
   web {
     homepage_url  = var.homepage
-    redirect_uris = var.reply_urls
+    redirect_uris = var.redirect_uris
+
     implicit_grant {
-      access_token_issuance_enabled = var.oauth2_allow_implicit_flow
+      access_token_issuance_enabled = var.access_token_issuance_enabled
+      id_token_issuance_enabled     = var.id_token_issuance_enabled
     }
   }
-
 
   dynamic "required_resource_access" {
     for_each = var.required_resource_access
@@ -51,18 +56,19 @@ resource "azuread_application" "main" {
       }
     }
   }
-}
 
-resource "azuread_application_app_role" "roles" {
-
-  for_each = { for ar in var.app_roles : ar.value => ar }
-
-  application_object_id = azuread_application.main.id
-  enabled               = true
-  allowed_member_types  = each.value.allowed_member_types
-  description           = each.value.description
-  display_name          = each.value.display_name
-  value                 = each.key
+  dynamic "app_role" {
+    for_each = var.app_roles
+    iterator = resource
+    content {
+      enabled              = true
+      allowed_member_types = resource.value.allowed_member_types
+      description          = resource.value.description
+      display_name         = resource.value.display_name
+      value                = resource.value.value
+      id                   = random_uuid.app_roles_id[resource.value.value].result
+    }
+  }
 }
 
 resource "azuread_service_principal" "main" {
@@ -70,19 +76,8 @@ resource "azuread_service_principal" "main" {
   app_role_assignment_required = false
 }
 
-resource "random_password" "unique" {
-  length  = 32
-  special = false
-  upper   = true
-
-  keepers = {
-    application = azuread_application.main.id
-  }
-}
-
 resource "azuread_application_password" "main" {
   application_object_id = azuread_application.main.id
-  value                 = random_password.unique.result
   end_date              = var.end_date
 }
 
