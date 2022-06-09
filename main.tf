@@ -51,18 +51,18 @@ resource "azuread_application" "main" {
       }
     }
   }
-}
 
-resource "azuread_application_app_role" "roles" {
-
-  for_each = { for ar in var.app_roles : ar.value => ar }
-
-  application_object_id = azuread_application.main.id
-  enabled               = true
-  allowed_member_types  = each.value.allowed_member_types
-  description           = each.value.description
-  display_name          = each.value.display_name
-  value                 = each.key
+  dynamic "app_role" {
+    for_each = var.app_roles
+    iterator = resource
+    content {
+      enabled              = true
+      allowed_member_types = resource.value.allowed_member_types
+      description          = resource.value.description
+      display_name         = resource.value.display_name
+      value                = resource.value.value
+    }
+  }
 }
 
 resource "azuread_service_principal" "main" {
