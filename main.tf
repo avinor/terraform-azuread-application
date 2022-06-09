@@ -24,9 +24,12 @@ resource "random_uuid" "app_roles_id" {
   for_each = { for r in var.app_roles : r.value => r }
 }
 
+data "azuread_client_config" "current" {}
+
 resource "azuread_application" "main" {
   display_name            = var.name
   identifier_uris         = var.identifier_uris
+  owners                  = [data.azuread_client_config.current.object_id]
   sign_in_audience        = var.sign_in_audience
   group_membership_claims = var.group_membership_claims
 
