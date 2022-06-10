@@ -9,15 +9,11 @@ A general module to create an Azure AD application and optionally assign it role
 
 ## Usage
 
-Example using [tau](https://github.com/avinor/tau) for deployment
-
 ```terraform
-module {
-    source = "avinor/application/azuread"
-    version = "1.0.0"
-}
+module  "simple" {
+    source  = "avinor/application/azuread"
+    version = "3.0.2"
 
-inputs {
     name = "simple"
 }
 ```
@@ -25,15 +21,13 @@ inputs {
 Assigning roles for application:
 
 ```terraform
-module {
-    source = "avinor/application/azuread"
-    version = "1.0.0"
-}
+module "simple" {
+    source  = "avinor/application/azuread"
+    version = "3.0.2"
 
-inputs {
-    name = "simple"
-    reply_urls = ["https://simple.example.com"]
-    end_date = "2022-01-01T01:02:03Z"
+    name          = "simple"
+    redirect_uris = ["https://simple.example.com/"]
+    end_date      = "2022-01-01T01:02:03Z"
 
     assignments = [
         {
