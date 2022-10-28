@@ -1,8 +1,8 @@
 module github.com/avinor/terraform-azuread-application/test
 
-go 1.18
+go 1.19
 
-require github.com/gruntwork-io/terratest v0.40.15
+require github.com/gruntwork-io/terratest v0.40.24
 
 require (
 	cloud.google.com/go v0.83.0 // indirect
